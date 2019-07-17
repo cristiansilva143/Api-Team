@@ -5,12 +5,21 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use('/', index);
 
-app.use(function(err, req, res, next) {
-    console.error(err.message); 
-    if (!err.statusCode) err.statusCode = 400;
+app.use((req, res, next) => {
+  const error = new Error('Not found');
+  error.status = 404;
+  next(error);
+})
 
-    res.status(err.statusCode).send(err.message); 
+app.use((error, req, res, next) => {
+  res.status(error.status || 400);
+  res.json({
+      error: {
+          message: error.message
+      }
   });
+});
+
 
 
 
